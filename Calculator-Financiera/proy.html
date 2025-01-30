@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<head>
+		<meta charset="utf-8" />
+		<title>Calculadora Financiera</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+
+		<!-- Bootstrap CSS-->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" crossorigin="anonymous">
+
+		<!-- My CSS -->
+		<link rel="stylesheet" type="text/css" href="/static/style.css" />
+
+		<link rel="stylesheet" href="https://printjs-4de6.kxcdn.com/print.min.css">
+		
+		<!-- JQuery JS-->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" defer></script>
+
+		<!-- Bootstrap JS-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" crossorigin="anonymous" async></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" crossorigin="anonymous" async></script>
+
+		<script src="https://printjs-4de6.kxcdn.com/print.min.js" defer></script>
+
+		<!-- My Javascript -->
+		<script src="/static/amortizacion.js" defer></script>
+		<script src="/static/plazofijo.js" defer></script>
+		
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top custom-nav">
+			<a class="navbar-brand" style="color:dodgerblue">
+				FinanzUP!
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+				aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="navbar-collapse collapse" id="navbarNavDropdown">
+				<ul class="navbar-nav">
+					<li class="nav-item">
+						<a class="nav-link" href="/">Inicio</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/plazo">Plazo Fijo</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/prestamo">Préstamo</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/solicitudes">Solicitudes</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		{% if get_flashed_messages() %}
+				<div class="alert alert-success border text-center" style="margin-top: 60px" role="alert">
+					{{ get_flashed_messages() | join(" ") }}
+				</div>
+		{% endif %}
+
+		{% block content %}
+		{% endblock %}
+
+
+
+        {% extends "layout.html" %}
+{% block content %}
+<div class="container pad">
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Calculá el plazo fijo</h3>
+            <p>Ingresá los datos y presioná calcular para obtener los resultados.</p>
+            <form action="/solicitud" method="GET">
+                <div class="form-group">
+                    <label for="capitalLabel">Capital</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">$</div>
+                        </div>
+                        <input type="number" name="capital" class="form-control" id="capital" aria-describedby="capitalHelp" 
+                        max="100000" min="5000" placeholder="5000" required>
+                    </div>
+                    <small id="capitalHelp" class="form-text text-muted">Máximo $100000</small>
+                </div>
+                <div class="form-group">
+                    <label for="plazoLabel">Duración del plazo</label>
+                    <input type="number" name="plazo" class="form-control" id="plazo" 
+                    aria-describedby="plazoHelp" max="365" min="30" placeholder="30" required>
+                    <small id="plazoHelp" class="form-text text-muted">Máximo 365 días</small>
+                </div>
+                <button onclick="calcularPlazo()" id="Calcular" type="button" class="btn btn-primary">Calcular</button>
+                <button type="submit" id="solicitudPlazo" class="btn btn-success">Solicitar</button>
+            </form>
+        </div><!-- Columna Izquierda -->
+        <div class="col-md-8">
+            <div class="right-area">
+                <h3 class="alert alert-primary">Intereses Producidos</h3>
+                <form>
+                    <div class="row">
+                        <label for="Intereses" class="col-sm-5 col-form-label">Intereses</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label importante" id="Intereses"></label>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="row">
+                        <label for="Resultado" class="col-sm-5 col-form-label">Capital + Intereses</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label" id="Resultado"></label>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="row">
+                        <label for="Vencimiento" class="col-sm-5 col-form-label">Fecha de Vencimiento</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label" id="Vencimiento"></label>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="row">
+                        <abbr class="col-sm-5 col-form-label" for="tna" title="Tasa Nominal Anual">TNA</abbr>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label" id="TNA"></label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div> <!-- Columna Derecha --> 
+    </div>
+</div><!-- Container -->
+{% endblock %}
+
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="container pad">
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Calculá el plazo fijo</h3>
+            <p>Ingresá los datos y presioná calcular para obtener los resultados.</p>
+            <form action="/solicitud" method="GET">
+                <div class="form-group">
+                    <label for="capitalLabel">Capital</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">$</div>
+                        </div>
+                        <input type="number" name="capital" class="form-control" id="capital" aria-describedby="capitalHelp" 
+                        max="100000" min="5000" placeholder="5000" required>
+                    </div>
+                    <small id="capitalHelp" class="form-text text-muted">Máximo $100000</small>
+                </div>
+                <div class="form-group">
+                    <label for="plazoLabel">Duración del plazo</label>
+                    <input type="number" name="plazo" class="form-control" id="plazo" 
+                    aria-describedby="plazoHelp" max="365" min="30" placeholder="30" required>
+                    <small id="plazoHelp" class="form-text text-muted">Máximo 365 días</small>
+                </div>
+                <button onclick="calcularPlazo()" id="Calcular" type="button" class="btn btn-primary">Calcular</button>
+                <button type="submit" id="solicitudPlazo" class="btn btn-success">Solicitar</button>
+            </form>
+        </div><!-- Columna Izquierda -->
+        <div class="col-md-8">
+            <div class="right-area">
+                <h3 class="alert alert-primary">Intereses Producidos</h3>
+                <form>
+                    <div class="row">
+                        <label for="Intereses" class="col-sm-5 col-form-label">Intereses</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label importante" id="Intereses"></label>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="row">
+                        <label for="Resultado" class="col-sm-5 col-form-label">Capital + Intereses</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label" id="Resultado"></label>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="row">
+                        <label for="Vencimiento" class="col-sm-5 col-form-label">Fecha de Vencimiento</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label" id="Vencimiento"></label>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="row">
+                        <abbr class="col-sm-5 col-form-label" for="tna" title="Tasa Nominal Anual">TNA</abbr>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label" id="TNA"></label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div> <!-- Columna Derecha --> 
+    </div>
+</div><!-- Container -->
+{% endblock %}
+{% extends "layout.html" %}
+{% block content %}
+<div class="container pad">
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Solicitá un préstamo</h3>
+            <p>Ingresá los datos y presioná calcular para obtener los resultados.</p>
+            <form action="/solicitudPrestamo" method="GET">
+                <div class="form-group">
+                    <label for="capitalLabel">Capital</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">$</div>
+                        </div>
+                        <input type="number" class="form-control" id="capital" name="capital" aria-describedby="capitalHelp" 
+                        max="100000" min="5000" placeholder="5000" required>
+                    </div>
+                    <small id="capitalHelp" class="form-text text-muted">Máximo $100000</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="plazoLabel">Duración del préstamo (en meses)</label>
+                    <input type="number" class="form-control" id="plazo" name="plazo" 
+                    aria-describedby="plazoHelp" max="72" min="1" placeholder="12" required>
+                    <small id="plazoHelp" class="form-text text-muted">Máximo 72 meses</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="sistemaLabel">Sistema de amortización</label>
+                    <select class="form-control" id="sistema" name="sistema" required>
+                        <option value="1">Francés</option>
+                        <option value="2">Alemán</option>
+                    </select>
+                    </div>
+
+                <button onclick="calcularAmort()" id="Calcular" type="button" class="btn btn-primary">Calcular</button>
+                <button type="submit" id="solicitudPrestamo" class="btn btn-success">Solicitar</button>
+                <button onclick="printJS({
+                     printable: 'tablaAmortizacion',
+                     type:'html',
+                     css: 'https:\/\/stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css',
+                     })"
+                    id="Imprimir" type="button" class="btn btn-alert">Imprimir</button>
+            </form>
+        </div><!-- Columna izquierda -->
+
+        <div class="col-md-8">
+            <div class="right-area">
+                <h3 class="alert alert-primary">Importe de la primera cuota</h3>
+                <form>
+                    <div class="row">
+                        <label for="ResultadoCapital" class="col-sm-5 col-form-label">Amortización + Intereses</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label importante" id="ResultadoCapital"></label>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <!-- En el caso de que se usara IVA habilitaremos estos campos para los scripts.
+                    <div class="row">
+                        <label for="Iva" class="col-sm-5 col-form-label">I.V.A</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label calculos" id="Iva"></label>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <label for="ResultadoIva" class="col-sm-5 col-form-label">Cuota + I.V.A</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label importante" id="ResultadoIva"></label>
+                        </div>
+                    </div>
+                    -->
+                    <div class="row">
+                        <label for="Fecha" class="col-sm-5 col-form-label">Fecha de pago</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label" id="Fecha"></label>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="row">
+                        <label for="Ingresos" class="col-sm-5 col-form-label">Ingresos Necesarios</label>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label importante" id="Ingresos"></label>
+                        </div>
+                    </div>
+                </form>
+
+                <h3 class="alert alert-primary">Tasas</h3>
+                <form>
+                    <div class="row">
+                            <abbr class="col-sm-5 col-form-label" for="tna" title="Tasa Nominal Anual">TNA</abbr>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label" id="TNA"></label>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="row">
+                            <abbr class="col-sm-5 col-form-label" for="tem" title="Tasa Efectiva Mensual">TEM</abbr>
+                        <div class="col-sm-3">
+                            <label type="text" class="col-form-label" id="TEM"></label>
+                        </div>
+                    </div>
+                </form>
+            </div><!-- right-area -->
+        </div><!-- Columna derecha -->
+    </div><!-- row -->
+    <div class="row" style="padding: 40px">
+        <table id="tablaAmortizacion" class="table table-hover table-striped">
+            <caption id="descripcion">Tabla de amortización</caption>
+            <thead>
+                <tr class="table-primary">
+                    <th scope="col">#</th>
+                    <th scope="col">Interés</th>
+                    <th scope="col">Amortización</th>
+                    <th scope="col">Cuota</th>
+                    <th scope="col">Saldo</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpoTabla">
+            </tbody>
+        </table>
+    </div><!-- Tabla -->
+</div><!-- container -->
+{% endblock %}
+{% extends "layout.html" %}
+{% block content %}
+<div class="container pad">
+    <h3>Se van a depositar 
+        <span class="importante">$ {{valor[0]}}</span> por 
+        <span class="importante">{{valor[1]}}</span> días a una tasa nominal anual del 
+        <span class="importante">{{valor[2]}}%</span>
+    </h3>
+    <div class="dropdown-divider"></div>
+    <h5>Para finalizar la solicitud ingrese el DNI del cliente.</h5>
+    <form action="/solicitud" method="POST" class="centrado" id="formulario">
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="dni">DNI</label>
+                <input type="text" class="form-control" id="dni" name="dni" placeholder="DNI" required>
+                <br>
+                <button type="button" class="btn btn-primary" onclick="consultaUsuario()">Consultar</button>
+            </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="nombre">Nombre</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Juan" required>
+            </div>
+        </div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="apellido">Apellido</label>
+                <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Perez" required>
+            </div>
+        </div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="direccion">Localidad</label>
+                <input type="text" class="form-control" id="localidad" name="localidad" placeholder="Localidad" required>
+            </div>
+        </div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="telefono">Teléfono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="0353 1 234 567" required>
+            </div>
+        </div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="email">E-mail</label>
+                <input type="text" class="form-control" id="email" name="email" placeholder="juanperez@hotmail.com" required>
+            </div>
+        </div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <button type="submit" id="enviarPlazo" class="btn btn-success">✔︎ Finalizar solicitud</button>
+                <input action="action" onclick="window.history.go(-1); return false;" type="button" value="← Atrás" class="btn btn-secondary"></input>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    function consultaUsuario() {
+        let dni = document.getElementById("dni").value
+        let form = document.getElementById("formulario");
+        let inputs = form.elements;
+
+        if (!dni) {
+            alert("Por favor ingrese los datos solicitados.");
+            throw new Error("Por favor ingrese los datos solicitados")
+        }
+
+        $.ajax({
+        url: "/consultaUser",
+        method: "GET",
+        async: false,
+        data: {
+            dni: dni
+        }
+        }) 
+        .done(function(usuario) {
+            if (usuario == 'no') {
+                alert('El cliente no está registrado. Por favor ingrese los datos.');
+
+                for (let i = 2; i < 7; i++) {
+                    inputs[i].readOnly = false;
+                    inputs[i].value = inputs[i].defaultValue;
+                }
+
+            } else {
+                document.getElementById('nombre').value = usuario[0]['nombre']
+                document.getElementById('apellido').value = usuario[0]['apellido']
+                document.getElementById('localidad').value = usuario[0]['localidad']
+                document.getElementById('telefono').value = usuario[0]['telefono']
+                document.getElementById('email').value = usuario[0]['email']
+
+                for (let i = 2; i < 7; i++) {
+                    inputs[i].readOnly = true;
+                }
+
+                alert('El cliente ya está registrado. Puede finalizar la solicitud.');
+
+                // Scroll to the bottom 
+                // https://www.electrictoolbox.com/jquery-scroll-bottom/
+                $('html, body').animate({scrollTop:$(document).height()}, '5000');
+            }
+        });
+    }
+</script>
+{% endblock %}
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="container pad">
+    <h3>Se van a solicitar 
+        <span class="importante">$ {{prestamo[0]}}</span> por 
+        <span class="importante">{{prestamo[1]}}</span> meses a una tasa nominal anual del 
+        <span class="importante">{{prestamo[2]}}%</span>.
+    </h3>
+    <h3>Se pagará mediante sistema de amortización 
+        {% if prestamo[3] == '1' %}
+        <span class="importante">Francés</span>.
+        {% else %}
+        <span class="importante">Alemán</span>.
+        {% endif %}
+    </h3>
+    <div class="dropdown-divider"></div>
+    <h5>Para finalizar la solicitud ingrese el DNI del cliente.</h5>
+    <form action="/solicitudPrestamo" method="POST" class="centrado" id=formulario>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="dni">DNI</label>
+                <input type="text" class="form-control" id="dni" name="dni" placeholder="DNI" autofocus required>
+                <br>
+                <button type="button" class="btn btn-primary" onclick="consultaUsuario()">Consultar</button>
+            </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="nombre">Nombre</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Juan" required>
+            </div>
+        </div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="apellido">Apellido</label>
+                <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Perez" required>
+            </div>
+        </div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="direccion">Localidad</label>
+                <input type="text" class="form-control" id="localidad" name="localidad" placeholder="Localidad" required>
+            </div>
+        </div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="telefono">Teléfono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="0353 1 234 567" required>
+            </div>
+        </div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <label for="email">E-mail</label>
+                <input type="text" class="form-control" id="email" name="email" placeholder="juanperez@hotmail.com" required>
+            </div>
+        </div>
+        <div class="form-row justify-content-center">
+            <div class="col-6 centrado-form">
+                <button type="submit" id="enviarPrestamo" class="btn btn-success">✔︎ Finalizar solicitud</button>
+                <input action="action" onclick="window.history.go(-1); return false;" type="button" value="← Atrás" class="btn btn-secondary"></input>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    function consultaUsuario() {
+        let dni = document.getElementById("dni").value
+        let form = document.getElementById("formulario");
+        let inputs = form.elements;
+
+        if (!dni) {
+            alert("Por favor ingrese los datos solicitados.");
+            throw new Error("Por favor ingrese los datos solicitados")
+        }
+        
+        $.ajax({
+        url: "/consultaUser",
+        method: "GET",
+        async: false,
+        data: {
+            dni: dni
+        }
+        }) 
+        .done(function(usuario) {
+            if (usuario == 'no') {
+                alert('El cliente no está registrado. Por favor ingrese los datos.');
+
+                for (let i = 2; i < 7; i++) {
+                    inputs[i].readOnly = false;
+                    inputs[i].value = inputs[i].defaultValue;
+                }
+
+            } else {
+                document.getElementById('nombre').value = usuario[0]['nombre'];
+                document.getElementById('apellido').value = usuario[0]['apellido'];
+                document.getElementById('localidad').value = usuario[0]['localidad'];
+                document.getElementById('telefono').value = usuario[0]['telefono'];
+                document.getElementById('email').value = usuario[0]['email'];
+
+                for (let i = 2; i < 7; i++) {
+                    inputs[i].readOnly = true;
+                }
+
+                alert('El cliente ya está registrado. Puede finalizar la solicitud.');
+
+                // Scroll to the bottom 
+                // https://www.electrictoolbox.com/jquery-scroll-bottom/
+                $('html, body').animate({scrollTop:$(document).height()}, '5000');
+            }
+        });
+    }
+</script>
+{% endblock %}
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="container pad">
+    <div class="row">
+        <div class="col-md-3">
+            <h5>Aquí puede ver las solicitudes de cada cliente.</h5>
+            <form action="/consulta" method="GET">
+                <div class="form-group">
+                    <label for="clienteLabel">Cliente</label>
+                    <select class="form-control" id="cliente" name="cliente" required>
+                        {% for cliente in clientes %}
+                        <option onclick="selectCliente()" value={{ cliente.dni }}>{{ cliente.nombre + ' ' + cliente.apellido }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div><!-- Columna izquierda -->
+
+        <div class="col-md-9">
+                <div class="right-area">
+                    <h3 class="alert alert-success">Prestamos</h3>
+                    <div class="row tablePad">
+                            <table id="tablaAmortizacion" class="table table-hover table-striped">
+                                <thead>
+                                    <tr class="table-success">
+                                        <th scope="col">Capital ($)</th>
+                                        <th scope="col">Fecha de solicitud</th>
+                                        <th scope="col">Plazo (meses)</th>
+                                        <th scope="col">Sistema</th>
+                                        <th scope="col">TNA (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cuerpoTablaPrest">
+                                </tbody>
+                            </table>
+                        </div><!-- Tabla -->
+                        <h3 class="alert alert-primary">Plazos Fijos</h3>
+                        <div class="row tablePad">
+                            <table id="tablaPlazosFijos" class="table table-hover table-striped">
+                                <thead>
+                                    <tr class="table-primary">
+                                        <th scope="col">Capital ($)</th>
+                                        <th scope="col">Fecha de solicitud</th>
+                                        <th scope="col">Plazo (días)</th>
+                                        <th scope="col">TNA (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cuerpoTablaPF">
+                                </tbody>
+                            </table>
+                        </div><!-- Tabla -->
+                </div><!-- Right-area -->
+        </div><!-- Columna derecha -->
+    </div>
+</div>
+<script type="text/javascript">
+    function selectCliente() {
+        let cliente = document.getElementById("cliente").value;
+
+        /**
+         * https://stackoverflow.com/questions/22988250/two-ajax-requests-on-same-event-at-same-time-what-should-be-the-typical-behavi
+         */
+        $.when(
+            $.ajax({
+                url: "/consultaPrestamos",
+                method: "GET",
+                async: false,
+                data: {
+                    cliente: cliente
+                },
+                // Guardo el resultado en una variable
+                success: function(resultado1) {
+                    prestamos = resultado1;
+                }
+            }),
+            
+            $.ajax({
+                url: "/consultaPlazos",
+                method: "GET",
+                async: false,
+                data: {
+                    cliente: cliente
+                },
+                // Guardo el resultado en una variable                
+                success: function(resultado2) {
+                    plazos = resultado2;
+                }
+            })
+            
+        ).then(function() {
+
+                // Lleno la tabla con los préstamos obtenidos
+                let tableBody = document.getElementById("cuerpoTablaPrest");
+                tableBody.innerHTML = "";
+
+                for (let i = 0; i < prestamos.length; i++) {
+                    const prestamo = prestamos[i]
+                    fila = document.createElement("tr");
+                    /**
+                     * https://stackoverflow.com/questions/14379274/how-to-iterate-over-a-javascript-object
+                     */
+                    for (let key in prestamo) { 
+                        if (prestamo.hasOwnProperty(key)) { 
+                            let valor = prestamo[key]
+                            
+                            // Workaround para mostrar sistema
+                            if (key == 'sistema') {
+                                if (prestamo[key] == 1) {
+                                    valor = 'Francés'
+                                } else {
+                                    valor = 'Alemán'
+                                }
+                            }
+
+                            td = document.createElement("td");
+                            celda = document.createTextNode(valor);
+                            td.appendChild(celda);
+                            fila.appendChild(td);
+                        } 
+                    }
+                    tableBody.appendChild(fila);
+                }
+
+                // Lleno la tabla con los plazos fijos obtenidos
+                let tablaPF = document.getElementById("cuerpoTablaPF");
+                tablaPF.innerHTML = "";
+
+                for (let i = 0; i < plazos.length; i++) {
+                    const plazo = plazos[i]
+                    fila = document.createElement("tr");
+                    /**
+                     * https://stackoverflow.com/questions/14379274/how-to-iterate-over-a-javascript-object
+                     */
+                    for (let key in plazo) { 
+                        if (plazo.hasOwnProperty(key)) { 
+                            let valor = plazo[key]
+                            
+                            td = document.createElement("td");
+                            celda = document.createTextNode(valor);
+                            td.appendChild(celda);
+                            fila.appendChild(td);
+                        } 
+                    }
+                    tablaPF.appendChild(fila);
+                }
+            })
+    }
+</script>
+{% endblock %}
+	</body>
+</html>
